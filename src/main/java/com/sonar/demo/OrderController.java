@@ -20,12 +20,9 @@ public class OrderController {
       @PathVariable long id,
       @RequestHeader("X-User-Id") String userId) {
     return repository.findById(id)
-        .map(order -> {
-          if (!order.ownerId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).<Order>build();
-          }
-          return ResponseEntity.ok(order);
-        })
+        .map(order -> order.ownerId().equals(userId)
+            ? ResponseEntity.ok(order)
+            : ResponseEntity.status(HttpStatus.FORBIDDEN).<Order>build())
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 }
