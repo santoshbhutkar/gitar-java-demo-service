@@ -19,7 +19,9 @@ public class OrderController {
       @PathVariable long id,
       @RequestHeader("X-User-Id") String userId) {
     return repository.findById(id)
-        .map(order -> ResponseEntity.ok(order))
+        .map(order -> order.ownerId().equals(userId)
+            ? ResponseEntity.ok(order)
+            : ResponseEntity.<Order>status(403).build())
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 }
