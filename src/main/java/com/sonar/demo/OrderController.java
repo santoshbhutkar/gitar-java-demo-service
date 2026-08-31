@@ -19,6 +19,7 @@ public class OrderController {
       @PathVariable long id,
       @RequestHeader("X-User-Id") String userId) {
     return repository.findById(id)
+        .filter(order -> order.ownerId().equals(userId))
         .map(order -> ResponseEntity.ok(order))
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
