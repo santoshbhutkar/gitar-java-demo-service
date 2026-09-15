@@ -15,14 +15,18 @@ public class OrderController {
     this.repository = repository;
   }
 
- @GetMapping("/orders/{id}")
-public ResponseEntity<Order> getOrder(
-    @PathVariable long id,
-    @RequestHeader("X-User-Id") String userId) {
-
-  return repository.findById(id)
-      .map(ResponseEntity::ok)
-      .orElseGet(() -> ResponseEntity.notFound().build());
-}
+  @GetMapping("/orders/{id}")
+  public ResponseEntity<Order> getOrder(
+      @PathVariable long id,
+      @RequestHeader("X-User-Id") String userId) {
+    return repository.findById(id)
+        .map(order -> {
+          if (!order.ownerId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).<Order>build();
+          }
+          return ResponseEntity.ok(order);
+        })
+        .orElseGet(() -> ResponseEntity.notFound().build());
+  }
 
 }
