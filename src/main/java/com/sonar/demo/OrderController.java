@@ -1,6 +1,5 @@
 package com.sonar.demo;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,12 +19,9 @@ public class OrderController {
       @PathVariable long id,
       @RequestHeader("X-User-Id") String userId) {
     return repository.findById(id)
-        .map(order -> {
-          if (!order.ownerId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).<Order>build();
-          }
-          return ResponseEntity.ok(order);
-        })
+        .map(order -> order.ownerId().equals(userId)
+            ? ResponseEntity.ok(order)
+            : ResponseEntity.<Order>status(403).build())
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 }
